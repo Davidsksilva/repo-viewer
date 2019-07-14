@@ -4,7 +4,9 @@ import { Link } from 'react-router-dom';
 
 import api from '../../services/api';
 
-import { Container, Form, SubmitButton, List } from './styles';
+import { Form, SubmitButton, List } from './styles';
+
+import Container from '../../components/Container';
 
 class Main extends React.Component {
   state = {
@@ -74,7 +76,7 @@ class Main extends React.Component {
             onChange={this.handleInputChange}
           />
 
-          <SubmitButton loading={loading}>
+          <SubmitButton loading={loading ? 1 : 0}>
             {loading ? (
               <FaSpinner color="FFF" size={14} />
             ) : (
