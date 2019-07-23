@@ -21,6 +21,7 @@ class Repository extends Component {
     repository: {},
     issues: [],
     loading: true,
+    filter: 'open',
   };
 
   async componentDidMount() {
@@ -45,8 +46,31 @@ class Repository extends Component {
     });
   }
 
+  handleFilter = async filter => {
+    const { match } = this.props;
+
+    const repoName = decodeURIComponent(match.params.repository);
+
+    this.setState({
+      loading: true,
+    });
+
+    const issues = await api.get(`/repos/${repoName}/issues`, {
+      params: {
+        state: filter,
+        per_page: 5,
+      },
+    });
+
+    this.setState({
+      issues: issues.data,
+      loading: false,
+      filter,
+    });
+  };
+
   render() {
-    const { repository, issues, loading } = this.state;
+    const { repository, issues, loading, filter } = this.state;
 
     if (loading) {
       return <Loading>Loading</Loading>;
@@ -62,13 +86,25 @@ class Repository extends Component {
         </Owner>
 
         <FilterBox>
-          <FilterButton loading={loading ? 1 : 0}>
+          <FilterButton
+            onClick={() => this.handleFilter('all')}
+            loading={loading ? 1 : 0}
+            selected={filter === 'all'}
+          >
             {loading ? <FaSpinner color="FFF" size={14} /> : 'All'}
           </FilterButton>
-          <FilterButton loading={loading ? 1 : 0}>
+          <FilterButton
+            onClick={() => this.handleFilter('open')}
+            loading={loading ? 1 : 0}
+            selected={filter === 'open'}
+          >
             {loading ? <FaSpinner color="FFF" size={14} /> : 'Open'}
           </FilterButton>
-          <FilterButton loading={loading ? 1 : 0}>
+          <FilterButton
+            onClick={() => this.handleFilter('closed')}
+            loading={loading ? 1 : 0}
+            selected={filter === 'closed'}
+          >
             {loading ? <FaSpinner color="FFF" size={14} /> : 'Closed'}
           </FilterButton>
         </FilterBox>
