@@ -8,11 +8,17 @@ import { Form, SubmitButton, List } from './styles';
 
 import Container from '../../components/Container';
 
+function RepositoryException(message) {
+  this.message = message;
+  this.name = 'RepositoryException';
+}
+
 class Main extends React.Component {
   state = {
     newRepo: '',
     repositories: [],
     loading: false,
+    error: false,
   };
 
   componentDidMount() {
@@ -40,27 +46,43 @@ class Main extends React.Component {
   handleSubmit = async e => {
     e.preventDefault();
 
-    const { newRepo } = this.state;
+    const { newRepo, repositories } = this.state;
 
-    this.setState({
-      loading: true,
-    });
+    try {
+      this.setState({
+        loading: true,
+        error: false,
+      });
 
-    const response = await api.get(`/repos/${newRepo}`);
+      const response = await api.get(`/repos/${newRepo}`);
 
-    const data = {
-      name: response.data.full_name,
-    };
+      const data = {
+        name: response.data.full_name,
+      };
 
-    this.setState(prevState => ({
-      repositories: [...prevState.repositories, data],
-      newRepo: '',
-      loading: false,
-    }));
+      if (!data.name) {
+        throw new RepositoryException('Repository not found');
+      }
+
+      if (repositories.some(repo => repo.name === data.name)) {
+        throw new RepositoryException('Duplicated repository');
+      }
+
+      this.setState(prevState => ({
+        repositories: [...prevState.repositories, data],
+        newRepo: '',
+        loading: false,
+      }));
+    } catch (err) {
+      this.setState({
+        error: true,
+        loading: false,
+      });
+    }
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const { newRepo, loading, repositories, error } = this.state;
     return (
       <Container>
         <h1>
@@ -68,7 +90,7 @@ class Main extends React.Component {
           Repositories
         </h1>
 
-        <Form onSubmit={this.handleSubmit}>
+        <Form error={error} onSubmit={this.handleSubmit}>
           <input
             type="text"
             placeholder="Add repository"

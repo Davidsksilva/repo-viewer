@@ -52,8 +52,6 @@ class Repository extends Component {
       return <Loading>Loading</Loading>;
     }
 
-    console.log(issues);
-
     return (
       <Container>
         <Owner>
