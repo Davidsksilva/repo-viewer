@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-
+import { FaSpinner } from 'react-icons/fa';
 import api from '../../services/api';
 
-import { Loading, Owner, IssueList } from './styles';
+import { Loading, Owner, IssueList, FilterBox, FilterButton } from './styles';
 
 import Container from '../../components/Container';
 
@@ -60,6 +60,18 @@ class Repository extends Component {
           <h1>{repository.name}</h1>
           <p>{repository.description}</p>
         </Owner>
+
+        <FilterBox>
+          <FilterButton loading={loading ? 1 : 0}>
+            {loading ? <FaSpinner color="FFF" size={14} /> : 'All'}
+          </FilterButton>
+          <FilterButton loading={loading ? 1 : 0}>
+            {loading ? <FaSpinner color="FFF" size={14} /> : 'Open'}
+          </FilterButton>
+          <FilterButton loading={loading ? 1 : 0}>
+            {loading ? <FaSpinner color="FFF" size={14} /> : 'Closed'}
+          </FilterButton>
+        </FilterBox>
 
         <IssueList>
           {issues.map(issue => (

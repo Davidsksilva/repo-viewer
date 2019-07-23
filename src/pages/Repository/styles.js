@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 
 export const Loading = styled.div`
   color: #fff;
@@ -42,9 +42,53 @@ export const Owner = styled.header`
   }
 `;
 
+export const FilterBox = styled.div`
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+
+  }
+`;
+
+export const FilterButton = styled.button.attrs(props => ({
+  disabled: props.loading,
+}))`
+  background: ${props => (props.selected ? '#1890ff' : '#FFF')};
+  color: ${props => (props.selected ? '#FFF' : '#1890ff')};
+  font-size: 16px;
+  padding: 10px 10px;
+  width: 100px;
+  margin-left: 10px;
+  border-radius: 4px;
+  border-width: 1px;
+  border-color: ${props => (props.selected ? null : '#1890ff')};
+  border-style: solid;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  ${props =>
+    props.loading &&
+    css`
+      svg {
+        animation: ${rotate} 2s linear infinite;
+      }
+    `}
+`;
+
 export const IssueList = styled.ul`
   padding-top: 30px;
-  margin-top: 30px;
+  margin-top: 20px;
   border-top: 1px solid #eee;
 
   li {
