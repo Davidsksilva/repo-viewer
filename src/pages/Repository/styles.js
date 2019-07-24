@@ -60,7 +60,7 @@ const rotate = keyframes`
 `;
 
 export const FilterButton = styled.button.attrs(props => ({
-  disabled: props.loading,
+  disabled: props.loading && props.selected === props.filter,
 }))`
   background: ${props => (props.selected ? '#1890ff' : '#FFF')};
   color: ${props => (props.selected ? '#FFF' : '#1890ff')};
@@ -86,6 +86,37 @@ export const FilterButton = styled.button.attrs(props => ({
     `}
 `;
 
+export const PaginationButton = styled.button.attrs(props => ({
+  disabled:
+    (props.page === 1 && props.type === 'prev') ||
+    (props.page === 2 && props.type === 'next'),
+}))`
+  background: ${props => (props.selected ? '#1890ff' : '#FFF')};
+  color: ${props => (props.selected ? '#FFF' : '#1890ff')};
+  font-size: 16px;
+  padding: 10px 10px;
+  margin-left: 10px;
+  border-radius: 4px;
+  border-width: 1px;
+  border-color: ${props => (props.selected ? null : '#1890ff')};
+  border-style: solid;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  ${props =>
+    props.loading &&
+    css`
+      svg {
+        animation: ${rotate} 2s linear infinite;
+      }
+    `}
+  :disabled {
+    opacity: 0.4;
+  }
+`;
+
 export const IssueList = styled.ul`
   padding-top: 30px;
   margin-top: 20px;
@@ -96,10 +127,10 @@ export const IssueList = styled.ul`
     padding: 15px 10px;
     border: 1px solid #eee;
     border-radius: 4px;
-  }
 
-  & + li {
-    margin-top: 10px;
+    & + li {
+      margin-top: 10px;
+    }
   }
 
   img {
@@ -143,4 +174,11 @@ export const IssueList = styled.ul`
       color: #999;
     }
   }
+`;
+
+export const PaginationBox = styled.div`
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 `;

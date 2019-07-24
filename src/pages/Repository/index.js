@@ -2,9 +2,18 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { FaSpinner } from 'react-icons/fa';
+
 import api from '../../services/api';
 
-import { Loading, Owner, IssueList, FilterBox, FilterButton } from './styles';
+import {
+  Loading,
+  Owner,
+  IssueList,
+  FilterBox,
+  FilterButton,
+  PaginationBox,
+  PaginationButton,
+} from './styles';
 
 import Container from '../../components/Container';
 
@@ -22,11 +31,13 @@ class Repository extends Component {
     issues: [],
     loading: true,
     filter: 'open',
+    loadingFilter: false,
+    page: 1,
   };
 
   async componentDidMount() {
     const { match } = this.props;
-
+    const { page } = this.state;
     const repoName = decodeURIComponent(match.params.repository);
 
     const [repository, issues] = await Promise.all([
@@ -34,7 +45,7 @@ class Repository extends Component {
       api.get(`/repos/${repoName}/issues`, {
         params: {
           state: 'open',
-          per_page: 5,
+          page,
         },
       }),
     ]);
@@ -46,31 +57,39 @@ class Repository extends Component {
     });
   }
 
-  handleFilter = async filter => {
+  handleIssues = async (filter, page) => {
     const { match } = this.props;
-
     const repoName = decodeURIComponent(match.params.repository);
 
     this.setState({
-      loading: true,
+      loadingFilter: true,
+      filter,
     });
 
     const issues = await api.get(`/repos/${repoName}/issues`, {
       params: {
         state: filter,
-        per_page: 5,
+        page,
       },
     });
 
     this.setState({
       issues: issues.data,
-      loading: false,
+      loadingFilter: false,
       filter,
+      page,
     });
   };
 
   render() {
-    const { repository, issues, loading, filter } = this.state;
+    const {
+      repository,
+      issues,
+      loading,
+      filter,
+      loadingFilter,
+      page,
+    } = this.state;
 
     if (loading) {
       return <Loading>Loading</Loading>;
@@ -80,35 +99,38 @@ class Repository extends Component {
       <Container>
         <Owner>
           <Link to="/">Go back to repositories</Link>
+
           <img src={repository.owner.avatar_url} alt={repository.owner.login} />
+
           <h1>{repository.name}</h1>
           <p>{repository.description}</p>
         </Owner>
-
         <FilterBox>
           <FilterButton
-            onClick={() => this.handleFilter('all')}
-            loading={loading ? 1 : 0}
+            onClick={() => this.handleIssues('all', page)}
+            loading={loadingFilter ? 1 : 0}
+            filter="all"
             selected={filter === 'all'}
           >
-            {loading ? <FaSpinner color="FFF" size={14} /> : 'All'}
+            {loadingFilter ? <FaSpinner color="FFF" size={14} /> : 'All'}
           </FilterButton>
           <FilterButton
-            onClick={() => this.handleFilter('open')}
-            loading={loading ? 1 : 0}
+            onClick={() => this.handleIssues('open', page)}
+            loading={loadingFilter ? 1 : 0}
+            filter="open"
             selected={filter === 'open'}
           >
-            {loading ? <FaSpinner color="FFF" size={14} /> : 'Open'}
+            {loadingFilter ? <FaSpinner color="FFF" size={14} /> : 'Open'}
           </FilterButton>
           <FilterButton
-            onClick={() => this.handleFilter('closed')}
-            loading={loading ? 1 : 0}
+            onClick={() => this.handleIssues('closed', page)}
+            loading={loadingFilter ? 1 : 0}
+            filter="closed"
             selected={filter === 'closed'}
           >
-            {loading ? <FaSpinner color="FFF" size={14} /> : 'Closed'}
+            {loadingFilter ? <FaSpinner color="FFF" size={14} /> : 'Closed'}
           </FilterButton>
         </FilterBox>
-
         <IssueList>
           {issues.map(issue => (
             <li key={String(issue.id)}>
@@ -126,6 +148,22 @@ class Repository extends Component {
             </li>
           ))}
         </IssueList>
+        <PaginationBox>
+          <PaginationButton
+            onClick={() => this.handleIssues(filter, page - 1)}
+            type="prev"
+            page={page}
+          >
+            Previous Page
+          </PaginationButton>
+          <PaginationButton
+            onClick={() => this.handleIssues(filter, page + 1)}
+            type="next"
+            page={page}
+          >
+            Next Page
+          </PaginationButton>
+        </PaginationBox>
       </Container>
     );
   }
