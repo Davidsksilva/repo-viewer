@@ -5,5 +5,3 @@ Project demo [here](https://awesome-bassi-efd19a.netlify.com/).
 
 
 ![img1](./img1.png)
-
-![](./img2.png)
